@@ -1,44 +1,51 @@
 import React, { useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Tabs, Tab, Paper, useTheme } from '@mui/material';
-import MoreTooltip from './MoreTooltip';
-
-import { type Page, isPage } from '.';
-
 import {
-  SettingsApplications,
-  SmartToy,
-  Storefront,
-  AddBox,
-  Assignment,
-  MoreHoriz,
-} from '@mui/icons-material';
-import RobotAvatar from '../../components/RobotAvatar';
+  BottomNavigation,
+  BottomNavigationAction,
+  Paper,
+  styled,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
+import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
+import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
+import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
+
 import { AppContext, type UseAppStoreType, closeAll } from '../../contexts/AppContext';
 import { GarageContext, type UseGarageStoreType } from '../../contexts/GarageContext';
 import { FederationContext, type UseFederationStoreType } from '../../contexts/FederationContext';
+import { type Page, isPage } from '.';
+
+const StyledBottomNavigation = styled(BottomNavigation)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: '8px 8px 0px 0px rgba(0,0,0,1)', // Hard black shadow
+  borderRadius: theme.spacing(1),
+  border: `2px solid black`, // Hard black outline
+  padding: theme.spacing(1),
+  [theme.breakpoints.up('md')]: {
+    padding: theme.spacing(2),
+    '& .MuiBottomNavigationAction-root': {
+      minWidth: '80px',
+    },
+  },
+}));
 
 const NavBar = (): JSX.Element => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const { page, setPage, settings, setSlideDirection, open, setOpen, windowSize, navbarHeight } =
+  const { page, setPage, settings, setSlideDirection, open, setOpen, windowSize } =
     useContext<UseAppStoreType>(AppContext);
   const { garage, robotUpdatedAt } = useContext<UseGarageStoreType>(GarageContext);
   const { setCurrentOrderId } = useContext<UseFederationStoreType>(FederationContext);
 
   const navigate = useNavigate();
   const location = useLocation();
-  const smallBar = windowSize?.width < 50;
-  const color = settings.network === 'mainnet' ? 'primary' : 'secondary';
-
-  const tabSx = smallBar
-    ? {
-        position: 'relative',
-        bottom: garage.getSlot()?.hashId ? '0.9em' : '0.13em',
-        minWidth: '1em',
-      }
-    : { position: 'relative', bottom: '1em', minWidth: '2em' };
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const [value, setValue] = React.useState(page);
 
   const pagesPosition = {
     robot: 1,
@@ -49,7 +56,7 @@ const NavBar = (): JSX.Element => {
   };
 
   useEffect(() => {
-    // re-render on orde rand robot updated at for latest orderId in tab
+    // re-render on order and robot updated at for latest orderId in tab
   }, [robotUpdatedAt]);
 
   useEffect(() => {
@@ -62,17 +69,18 @@ const NavBar = (): JSX.Element => {
     if (isPage(pathPage)) {
       setPage(pathPage);
     }
+    setValue(pathPage as Page);
   }, [location]);
 
   const handleSlideDirection = function (oldPage: Page, newPage: Page): void {
     const oldPos: number = pagesPosition[oldPage];
     const newPos: number = pagesPosition[newPage];
     setSlideDirection(
-      newPos > oldPos ? { in: 'left', out: 'right' } : { in: 'right', out: 'left' },
+      newPos > oldPos ? { in: 'left', out: 'right' } : { in: 'right', out: 'left' }
     );
   };
 
-  const changePage = function (mouseEvent: any, newPage: Page): void {
+  const changePage = function (event: React.SyntheticEvent, newPage: Page): void {
     if (newPage !== 'none') {
       const slot = garage.getSlot();
       handleSlideDirection(page, newPage);
@@ -95,102 +103,49 @@ const NavBar = (): JSX.Element => {
     setOpen(closeAll);
   }, [page, setOpen]);
 
-  const slot = garage.getSlot();
-
   return (
     <Paper
-      elevation={6}
       sx={{
-        height: `${navbarHeight}em`,
-        width: `100%`,
         position: 'fixed',
-        bottom: 0,
-        borderRadius: 0,
+        bottom: isSmallScreen ? 0 : 16,
+        left: isSmallScreen ? 0 : '50%',
+        transform: isSmallScreen ? 'none' : 'translateX(-50%)',
+        zIndex: 1000,
+        width: isSmallScreen ? '100%' : 'auto',
+        maxWidth: 600,
+        borderRadius: isSmallScreen ? 0 : theme.spacing(1),
+        boxShadow: '8px 8px 0px 0px rgba(0,0,0,1)', 
       }}
+      elevation={3}
     >
-      <Tabs
-        TabIndicatorProps={{ sx: { height: '0.3em', position: 'absolute', top: 0 } }}
-        variant='fullWidth'
-        value={page}
-        indicatorColor={color}
-        textColor={color}
-        onChange={changePage}
-      >
-        <Tab
-          sx={{ ...tabSx, minWidth: '2.5em', width: '2.5em', maxWidth: '4em' }}
-          value='none'
-          disabled={slot?.nickname === null}
-          onClick={() => {
-            setOpen({ ...closeAll, profile: !open.profile });
-          }}
-          icon={
-            slot?.hashId ? (
-              <RobotAvatar
-                style={{ width: '2.3em', height: '2.3em', position: 'relative', top: '0.2em' }}
-                avatarClass={theme.palette.mode === 'dark' ? 'navBarAvatarDark' : 'navBarAvatar'}
-                hashId={slot?.hashId}
-              />
-            ) : (
-              <></>
-            )
-          }
+      <StyledBottomNavigation value={value} onChange={changePage} showLabels>
+        <BottomNavigationAction
+          label={t('Robot')}
+          value="robot"
+          icon={<SmartToyOutlinedIcon />}
         />
-
-        <Tab
-          label={smallBar ? undefined : t('Robot')}
-          sx={{ ...tabSx, minWidth: '1em' }}
-          value='robot'
-          icon={<SmartToy />}
-          iconPosition='start'
+        <BottomNavigationAction
+          label={t('Offers')}
+          value="offers"
+          icon={<StorefrontOutlinedIcon />}
         />
-
-        <Tab
-          sx={tabSx}
-          label={smallBar ? undefined : t('Offers')}
-          value='offers'
-          icon={<Storefront />}
-          iconPosition='start'
+        <BottomNavigationAction
+          label={t('Create')}
+          value="create"
+          icon={<AddBoxOutlinedIcon />}
         />
-        <Tab
-          sx={tabSx}
-          label={smallBar ? undefined : t('Create')}
-          value='create'
-          icon={<AddBox />}
-          iconPosition='start'
+        <BottomNavigationAction
+          label={t('Orders')}
+          value="order"
+          icon={<AssignmentOutlinedIcon />}
+          disabled={!garage.getSlot()?.getRobot()?.activeOrderId}
         />
-        <Tab
-          sx={tabSx}
-          label={smallBar ? undefined : t('Order')}
-          value='order'
-          disabled={!slot?.getRobot()?.activeOrderId}
-          icon={<Assignment />}
-          iconPosition='start'
+        <BottomNavigationAction
+          label={t('Settings')}
+          value="settings"
+          icon={<SettingsOutlinedIcon />}
         />
-        <Tab
-          sx={tabSx}
-          label={smallBar ? undefined : t('Settings')}
-          value='settings'
-          icon={<SettingsApplications />}
-          iconPosition='start'
-        />
-
-        <Tab
-          sx={tabSx}
-          label={smallBar ? undefined : t('More')}
-          value='none'
-          onClick={() => {
-            setOpen((open) => {
-              return { ...open, more: !open.more };
-            });
-          }}
-          icon={
-            <MoreTooltip>
-              <MoreHoriz />
-            </MoreTooltip>
-          }
-          iconPosition='start'
-        />
-      </Tabs>
+      </StyledBottomNavigation>
     </Paper>
   );
 };

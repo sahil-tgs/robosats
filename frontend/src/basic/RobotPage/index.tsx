@@ -146,7 +146,7 @@ const RobotPage = (): JSX.Element => {
         <Paper
           elevation={0}
           sx={{
-            width: '60vw',
+            width: '80vw',
             maxWidth: '1200px',
             maxHeight: '85vh',
             overflow: 'auto',
