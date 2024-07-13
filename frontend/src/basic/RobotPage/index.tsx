@@ -1,3 +1,4 @@
+ 
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -85,23 +86,22 @@ const RobotPage = (): JSX.Element => {
 
   if (settings.useProxy && !(window.NativeRobosats === undefined) && !(torStatus === 'ON')) {
     return (
-      <Paper
-        elevation={12}
-        style={{
-          width: `${width}em`,
-          maxHeight: `${maxHeight}em`,
+      <Box
+        sx={{
+          width: '100vw',
+          height: 'auto',
         }}
       >
-        <Grid container direction='column' alignItems='center' spacing={1} padding={2}>
+        <Grid container direction="column" alignItems="center" spacing={1} padding={2}>
           <Grid item>
-            <Typography align='center' variant='h6'>
+            <Typography align="center" variant="h6">
               {t('Connecting to TOR')}
             </Typography>
           </Grid>
           <Grid item>
             <Box>
               <svg width={0} height={0}>
-                <linearGradient id='linearColors' x1={1} y1={0} x2={1} y2={1}>
+                <linearGradient id="linearColors" x1={1} y1={0} x2={1} y2={1}>
                   <stop offset={0} stopColor={theme.palette.primary.main} />
                   <stop offset={1} stopColor={theme.palette.secondary.main} />
                 </linearGradient>
@@ -129,54 +129,70 @@ const RobotPage = (): JSX.Element => {
             </Alert>
           </Grid>
         </Grid>
-      </Paper>
+      </Box>
     );
   } else {
     return (
-      <Paper
-        elevation={12}
-        style={{
-          width: `${width}em`,
-          maxHeight: `${maxHeight}em`,
-          overflow: 'auto',
-          overflowX: 'clip',
+      <Box
+        sx={{
+          width: '100vw',
+          height: 'auto',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '2em',
         }}
       >
-        {view === 'welcome' ? (
-          <Welcome setView={setView} getGenerateRobot={getGenerateRobot} width={width} />
-        ) : null}
+        <Paper
+          elevation={0}
+          sx={{
+            width: '60vw',
+            maxWidth: '1200px',
+            maxHeight: '85vh',
+            overflow: 'auto',
+            overflowX: 'clip',
+            backgroundColor: 'transparent',
+            border: 'none',
+            boxShadow: 'none',
+            padding: '1em',
+          }}
+        >
+          {view === 'welcome' ? (
+            <Welcome setView={setView} getGenerateRobot={getGenerateRobot} width={1200} />
+          ) : null}
 
-        {view === 'onboarding' ? (
-          <Onboarding
-            setView={setView}
-            badToken={badToken}
-            inputToken={inputToken}
-            setInputToken={setInputToken}
-            getGenerateRobot={getGenerateRobot}
-          />
-        ) : null}
+          {view === 'onboarding' ? (
+            <Onboarding
+              setView={setView}
+              badToken={badToken}
+              inputToken={inputToken}
+              setInputToken={setInputToken}
+              getGenerateRobot={getGenerateRobot}
+            />
+          ) : null}
 
-        {view === 'profile' ? (
-          <RobotProfile
-            setView={setView}
-            logoutRobot={logoutRobot}
-            width={width}
-            inputToken={inputToken}
-            setInputToken={setInputToken}
-            getGenerateRobot={getGenerateRobot}
-          />
-        ) : null}
+          {view === 'profile' ? (
+            <RobotProfile
+              setView={setView}
+              logoutRobot={logoutRobot}
+              width={1200}
+              inputToken={inputToken}
+              setInputToken={setInputToken}
+              getGenerateRobot={getGenerateRobot}
+            />
+          ) : null}
 
-        {view === 'recovery' ? (
-          <Recovery
-            setView={setView}
-            badToken={badToken}
-            inputToken={inputToken}
-            setInputToken={setInputToken}
-            getRecoverRobot={getGenerateRobot}
-          />
-        ) : null}
-      </Paper>
+          {view === 'recovery' ? (
+            <Recovery
+              setView={setView}
+              badToken={badToken}
+              inputToken={inputToken}
+              setInputToken={setInputToken}
+              getRecoverRobot={getGenerateRobot}
+            />
+          ) : null}
+        </Paper>
+      </Box>
     );
   }
 };
