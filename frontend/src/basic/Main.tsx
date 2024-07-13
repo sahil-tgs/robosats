@@ -2,11 +2,9 @@ import React, { useContext } from 'react';
 import { MemoryRouter, BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Box, Slide, Typography, styled } from '@mui/material';
 import { type UseAppStoreType, AppContext, closeAll } from '../contexts/AppContext';
-
-import { RobotPage, MakerPage, BookPage, OrderPage, SettingsPage, NavBar, MainDialogs } from './';
+import { TopNavBar, NavBar, RobotPage, MakerPage, BookPage, OrderPage, SettingsPage, MainDialogs } from './';
 import RobotAvatar from '../components/RobotAvatar';
 import Notifications from '../components/Notifications';
-
 import { useTranslation } from 'react-i18next';
 import { GarageContext, type UseGarageStoreType } from '../contexts/GarageContext';
 
@@ -35,6 +33,7 @@ const Main: React.FC = () => {
 
   return (
     <Router>
+      <TopNavBar />
       <RobotAvatar style={{ display: 'none' }} hashId={garage.getSlot()?.hashId} />
       <Notifications
         page={page}
