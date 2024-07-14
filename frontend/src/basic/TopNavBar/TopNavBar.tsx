@@ -15,10 +15,10 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   border: `2px solid ${theme.palette.mode === 'dark' ? '#fff' : '#000'}`,
   padding: '1vh',
   color: theme.palette.mode === 'dark' ? '#fff' : '#000',
-  top: '2vh',
-  left: '2vw',
-  right: '2vw',
-  width: 'calc(100% - 4vw)',
+  top: theme.spacing(2), // Add margin to prevent sticking to top edge
+  left: theme.spacing(2), // Add margin to prevent sticking to left edge
+  right: theme.spacing(2), // Add margin to prevent sticking to right edge
+  width: 'calc(100% - 64px)', // Adjust width to prevent overflow
   position: 'fixed',
   zIndex: 1100,
 }));
@@ -30,7 +30,7 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   width: '100%',
   padding: '0 2vw',
   [theme.breakpoints.down('sm')]: {
-    justifyContent: 'space-between', // Align items to the start on mobile
+    justifyContent: 'space-between',
   },
 }));
 
@@ -55,7 +55,7 @@ const MobileToolbarContent = styled(Box)(({ theme }) => ({
   justifyContent: 'flex-end',
   alignItems: 'center',
   width: '100%',
-  marginLeft: theme.spacing(2), // Add some space after the hamburger menu
+  marginLeft: theme.spacing(2),
 }));
 
 const TopNavBar = (): JSX.Element => {

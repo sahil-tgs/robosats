@@ -25,9 +25,8 @@ const StyledBottomNavigation = styled(BottomNavigation)(({ theme }) => ({
   boxShadow: '8px 8px 0px 0px rgba(0,0,0,1)', // Hard black shadow
   borderRadius: theme.spacing(1),
   border: `2px solid black`, // Hard black outline
-  padding: theme.spacing(1),
+  margin: theme.spacing(2), // Add margin to prevent sticking to edges
   [theme.breakpoints.up('md')]: {
-    padding: theme.spacing(2),
     '& .MuiBottomNavigationAction-root': {
       minWidth: '80px',
     },
@@ -37,10 +36,10 @@ const StyledBottomNavigation = styled(BottomNavigation)(({ theme }) => ({
 const NavBar = (): JSX.Element => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const { page, setPage, settings, setSlideDirection, open, setOpen, windowSize } =
+  const { page, setPage, setSlideDirection, open, setOpen, windowSize } =
     useContext<UseAppStoreType>(AppContext);
   const { garage, robotUpdatedAt } = useContext<UseGarageStoreType>(GarageContext);
-  const { setCurrentOrderId } = useContext<UseFederationStoreType>(FederationContext);
+  const { setCurrentOrderId } = useContext<FederationStoreType>(FederationContext);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -107,16 +106,17 @@ const NavBar = (): JSX.Element => {
     <Paper
       sx={{
         position: 'fixed',
-        bottom: isSmallScreen ? 0 : 16,
-        left: isSmallScreen ? 0 : '50%',
-        transform: isSmallScreen ? 'none' : 'translateX(-50%)',
+        bottom: theme.spacing(2),
+        left: '50%',
+        transform: 'translateX(-50%)',
         zIndex: 1000,
-        width: isSmallScreen ? '100%' : 'auto',
+        width: 'calc(100% - 64px)', // Adjust width to account for margin
         maxWidth: 600,
-        borderRadius: isSmallScreen ? 0 : theme.spacing(1),
-        boxShadow: '8px 8px 0px 0px rgba(0,0,0,1)', 
+        borderRadius: theme.spacing(1),
+        boxShadow: 'none', // Remove the boxShadow from Paper component
+        backgroundColor: 'transparent', // Ensure transparency
       }}
-      elevation={3}
+      elevation={0} // Remove elevation to remove shadow
     >
       <StyledBottomNavigation value={value} onChange={changePage} showLabels>
         <BottomNavigationAction

@@ -14,16 +14,17 @@ import {
   Stepper,
   Step,
   StepLabel,
+  StepConnector,
+  styled,
+  stepConnectorClasses,
+  StepIconProps,
 } from '@mui/material';
-import { type Robot } from '../../models';
-import { Casino, Bolt, Check, Storefront, AddBox, School } from '@mui/icons-material';
+import { Check, Casino, Bolt, Storefront, AddBox, School } from '@mui/icons-material';
 import RobotAvatar from '../../components/RobotAvatar';
 import TokenInput from './TokenInput';
 import { genBase62Token } from '../../utils';
-import { NewTabIcon } from '../../components/Icons';
 import { AppContext, type UseAppStoreType } from '../../contexts/AppContext';
 import { GarageContext, type UseGarageStoreType } from '../../contexts/GarageContext';
-import { styled } from '@mui/system';
 
 interface OnboardingProps {
   setView: (state: 'welcome' | 'onboarding' | 'recovery' | 'profile') => void;
@@ -44,6 +45,7 @@ const StyledPaper = styled(Box)(({ theme }) => ({
   padding: '1vh',
   color: theme.palette.text.primary,
   marginBottom: '1em',
+  marginTop: '2em', // Added margin-top here for more space
 }));
 
 const StyledButton = styled(Button)(({ theme }) => ({
@@ -59,6 +61,73 @@ const StyledButton = styled(Button)(({ theme }) => ({
   },
   margin: '0.5em 0',
 }));
+
+const SquareConnector = styled(StepConnector)(({ theme }) => ({
+  [`&.${stepConnectorClasses.alternativeLabel}`]: {
+    top: 20,
+    left: 'calc(-50% + 20px)',
+    right: 'calc(50% + 20px)',
+  },
+  [`&.${stepConnectorClasses.active}`]: {
+    [`& .${stepConnectorClasses.line}`]: {
+      borderColor: '#2196f3',
+    },
+  },
+  [`&.${stepConnectorClasses.completed}`]: {
+    [`& .${stepConnectorClasses.line}`]: {
+      borderColor: '#2196f3',
+    },
+  },
+  [`& .${stepConnectorClasses.line}`]: {
+    borderColor: theme.palette.mode === 'dark' ? '#eaeaf0' : '#eaeaf0',
+    borderTopWidth: 3,
+    borderRadius: 1,
+  },
+}));
+
+const SquareStepIconRoot = styled('div')<{ ownerState: { active?: boolean; completed?: boolean } }>(
+  ({ theme, ownerState }) => ({
+    color: theme.palette.mode === 'dark' ? '#eaeaf0' : '#eaeaf0',
+    display: 'flex',
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...(ownerState.active && {
+      color: '#2196f3',
+    }),
+    ...(ownerState.completed && {
+      color: '#2196f3',
+    }),
+  }),
+);
+
+const SquareStepIconBox = styled('div')<{ ownerState: { active?: boolean; completed?: boolean } }>(
+  ({ ownerState }) => ({
+    width: 40,
+    height: 40,
+    borderRadius: 4,
+    border: '2px solid currentColor',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: ownerState.completed || ownerState.active ? 'rgba(33, 150, 243, 0.3)' : 'transparent',
+    color: ownerState.completed || ownerState.active ? '#000' : 'currentColor',
+    fontSize: '1.2rem',
+    fontWeight: 'bold',
+  }),
+);
+
+function SquareStepIcon(props: StepIconProps) {
+  const { active, completed, className, icon } = props;
+
+  return (
+    <SquareStepIconRoot ownerState={{ active, completed }} className={className}>
+      <SquareStepIconBox ownerState={{ active, completed }}>
+        {completed ? <Check /> : icon}
+      </SquareStepIconBox>
+    </SquareStepIconRoot>
+  );
+}
 
 const Onboarding = ({
   setView,
@@ -91,11 +160,11 @@ const Onboarding = ({
   const steps = [t('1. Generate a token'), t('2. Meet your robot identity'), t('3. Browse or create an order')];
 
   return (
-    <Box>
-      <Stepper activeStep={parseInt(step) - 1} alternativeLabel sx={{ marginBottom: '2em' }}>
-        {steps.map((label) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
+    <Box sx={{ mt: 3, mb: 3, height: 'fit-content', overflow: 'visible' }}>
+      <Stepper alternativeLabel activeStep={parseInt(step) - 1} connector={<SquareConnector />}>
+        {steps.map((label, index) => (
+          <Step key={index}>
+            <StepLabel StepIconComponent={SquareStepIcon}>{label}</StepLabel>
           </Step>
         ))}
       </Stepper>
@@ -316,8 +385,6 @@ const Onboarding = ({
               >
                 <School /> <div style={{ width: '0.5em' }} />
                 {t('Learn RoboSats')}
-                <div style={{ width: '0.5em' }} />
-                <NewTabIcon sx={{ width: '0.8em' }} />
               </StyledButton>
             </Grid>
             <Grid item sx={{ position: 'relative', top: '0.6em' }}>
