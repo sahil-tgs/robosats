@@ -13,8 +13,9 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   boxShadow: '8px 8px 0px 0px rgba(0,0,0,1)',
   borderRadius: '1vw',
   border: `2px solid ${theme.palette.mode === 'dark' ? '#fff' : '#000'}`,
+  padding: '1vh',
   color: theme.palette.mode === 'dark' ? '#fff' : '#000',
-  top: '1vh',
+  top: '2vh',
   left: '2vw',
   right: '2vw',
   width: 'calc(100% - 4vw)',
@@ -22,19 +23,23 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
   zIndex: 1100,
 }));
 
-const StyledToolbar = styled(Toolbar)({
+const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
   width: '100%',
-});
+  padding: '0 2vw',
+  [theme.breakpoints.down('sm')]: {
+    justifyContent: 'space-between', // Align items to the start on mobile
+  },
+}));
 
 const CenterBox = styled(Box)({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
   gap: '5vw',
-  flexGrow: 1,  
+  flexGrow: 1,
 });
 
 const CenterButton = styled(Typography)(({ theme }) => ({
@@ -43,6 +48,14 @@ const CenterButton = styled(Typography)(({ theme }) => ({
   '&:hover': {
     textDecoration: 'underline',
   },
+}));
+
+const MobileToolbarContent = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  justifyContent: 'flex-end',
+  alignItems: 'center',
+  width: '100%',
+  marginLeft: theme.spacing(2), // Add some space after the hamburger menu
 }));
 
 const TopNavBar = (): JSX.Element => {
@@ -86,6 +99,31 @@ const TopNavBar = (): JSX.Element => {
               <IconButton edge="start" color="inherit" aria-label="menu" onClick={toggleDrawer(true)}>
                 <MenuIcon />
               </IconButton>
+              <MobileToolbarContent>
+                {slot?.hashId ? (
+                  <IconButton
+                    edge="end"
+                    onClick={() => {
+                      setOpen({ ...closeAll, profile: !open.profile });
+                    }}
+                  >
+                    <RobotAvatar
+                      style={{ width: '2.5em', height: '2.5em' }}
+                      avatarClass={theme.palette.mode === 'dark' ? 'navBarAvatarDark' : 'navBarAvatar'}
+                      hashId={slot?.hashId}
+                    />
+                  </IconButton>
+                ) : (
+                  <IconButton
+                    edge="end"
+                    onClick={() => {
+                      setOpen({ ...closeAll, profile: !open.profile });
+                    }}
+                  >
+                    <AccountCircleIcon style={{ fontSize: '1.5em' }} />
+                  </IconButton>
+                )}
+              </MobileToolbarContent>
               <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
                 <List>
                   <ListItem button onClick={handleLogoClick}>
@@ -128,30 +166,30 @@ const TopNavBar = (): JSX.Element => {
                   </CenterButton>
                 ))}
               </CenterBox>
+              {slot?.hashId ? (
+                <IconButton
+                  edge="end"
+                  onClick={() => {
+                    setOpen({ ...closeAll, profile: !open.profile });
+                  }}
+                >
+                  <RobotAvatar
+                    style={{ width: '2.5em', height: '2.5em' }}
+                    avatarClass={theme.palette.mode === 'dark' ? 'navBarAvatarDark' : 'navBarAvatar'}
+                    hashId={slot?.hashId}
+                  />
+                </IconButton>
+              ) : (
+                <IconButton
+                  edge="end"
+                  onClick={() => {
+                    setOpen({ ...closeAll, profile: !open.profile });
+                  }}
+                >
+                  <AccountCircleIcon style={{ fontSize: '1.5em' }} />
+                </IconButton>
+              )}
             </>
-          )}
-          {slot?.hashId ? (
-            <IconButton
-              edge="end"
-              onClick={() => {
-                setOpen({ ...closeAll, profile: !open.profile });
-              }}
-            >
-              <RobotAvatar
-                style={{ width: '2.5em', height: '2.5em' }}
-                avatarClass={theme.palette.mode === 'dark' ? 'navBarAvatarDark' : 'navBarAvatar'}
-                hashId={slot?.hashId}
-              />
-            </IconButton>
-          ) : (
-            <IconButton
-              edge="end"
-              onClick={() => {
-                setOpen({ ...closeAll, profile: !open.profile });
-              }}
-            >
-              <AccountCircleIcon style={{ fontSize: '1.5em' }} />
-            </IconButton>
           )}
         </StyledToolbar>
       </StyledAppBar>

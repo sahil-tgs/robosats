@@ -11,9 +11,9 @@ import {
   LinearProgress,
   Link,
   Typography,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  Stepper,
+  Step,
+  StepLabel,
 } from '@mui/material';
 import { type Robot } from '../../models';
 import { Casino, Bolt, Check, Storefront, AddBox, School } from '@mui/icons-material';
@@ -23,6 +23,7 @@ import { genBase62Token } from '../../utils';
 import { NewTabIcon } from '../../components/Icons';
 import { AppContext, type UseAppStoreType } from '../../contexts/AppContext';
 import { GarageContext, type UseGarageStoreType } from '../../contexts/GarageContext';
+import { styled } from '@mui/system';
 
 interface OnboardingProps {
   setView: (state: 'welcome' | 'onboarding' | 'recovery' | 'profile') => void;
@@ -34,6 +35,30 @@ interface OnboardingProps {
   badToken: string;
   baseUrl: string;
 }
+
+const StyledPaper = styled(Box)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: `8px 8px 0px 0px ${theme.palette.mode === 'dark' ? 'white' : 'black'}`,
+  borderRadius: '1vw',
+  border: `2px solid ${theme.palette.text.primary}`,
+  padding: '1vh',
+  color: theme.palette.text.primary,
+  marginBottom: '1em',
+}));
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  justifyContent: 'center',
+  textAlign: 'center',
+  padding: theme.spacing(2),
+  height: '100%',
+  borderRadius: '8px',
+  border: `2px solid ${theme.palette.text.primary}`,
+  boxShadow: `4px 4px 0px 0px ${theme.palette.mode === 'dark' ? 'white' : 'black'}`,
+  '&:hover': {
+    boxShadow: `8px 8px 0px 0px ${theme.palette.mode === 'dark' ? 'white' : 'black'}`,
+  },
+  margin: '0.5em 0',
+}));
 
 const Onboarding = ({
   setView,
@@ -63,15 +88,23 @@ const Onboarding = ({
 
   const slot = garage.getSlot();
 
+  const steps = [t('1. Generate a token'), t('2. Meet your robot identity'), t('3. Browse or create an order')];
+
   return (
     <Box>
-      <Accordion expanded={step === '1'} disableGutters={true}>
-        <AccordionSummary>
-          <Typography variant='h5' color={step === '1' ? 'text.primary' : 'text.disabled'}>
-            {t('1. Generate a token')}
+      <Stepper activeStep={parseInt(step) - 1} alternativeLabel sx={{ marginBottom: '2em' }}>
+        {steps.map((label) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+
+      {step === '1' && (
+        <StyledPaper>
+          <Typography variant='h5' color='text.primary'>
+            {steps[0]}
           </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
           <Grid container direction='column' alignItems='center' spacing={1} padding={1}>
             <Grid item>
               <Typography>
@@ -82,10 +115,10 @@ const Onboarding = ({
             </Grid>
             {!generatedToken ? (
               <Grid item>
-                <Button autoFocus onClick={generateToken} variant='contained' size='large'>
+                <StyledButton autoFocus onClick={generateToken} variant='contained' size='large'>
                   <Casino />
                   {t('Generate token')}
-                </Button>
+                </StyledButton>
               </Grid>
             ) : (
               <Grid item>
@@ -120,7 +153,7 @@ const Onboarding = ({
                     </Grid>
 
                     <Grid item>
-                      <Button
+                      <StyledButton
                         onClick={() => {
                           setStep('2');
                           getGenerateRobot(inputToken);
@@ -130,23 +163,21 @@ const Onboarding = ({
                       >
                         <Check />
                         {t('Continue')}
-                      </Button>
+                      </StyledButton>
                     </Grid>
                   </Grid>
                 </Collapse>
               </Grid>
             )}
           </Grid>
-        </AccordionDetails>
-      </Accordion>
+        </StyledPaper>
+      )}
 
-      <Accordion expanded={step === '2'} disableGutters={true}>
-        <AccordionSummary>
-          <Typography variant='h5' color={step === '2' ? 'text.primary' : 'text.disabled'}>
-            {t('2. Meet your robot identity')}
+      {step === '2' && (
+        <StyledPaper>
+          <Typography variant='h5' color='text.primary'>
+            {steps[1]}
           </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
           <Grid container direction='column' alignItems='center' spacing={1}>
             <Grid item>
               <Typography>
@@ -211,7 +242,7 @@ const Onboarding = ({
             ) : null}
             <Grid item>
               <Collapse in={!!slot?.hashId}>
-                <Button
+                <StyledButton
                   onClick={() => {
                     setStep('3');
                   }}
@@ -220,20 +251,18 @@ const Onboarding = ({
                 >
                   <Check />
                   {t('Continue')}
-                </Button>
+                </StyledButton>
               </Collapse>
             </Grid>
           </Grid>
-        </AccordionDetails>
-      </Accordion>
+        </StyledPaper>
+      )}
 
-      <Accordion expanded={step === '3'} disableGutters={true}>
-        <AccordionSummary>
-          <Typography variant='h5' color={step === '3' ? 'text.primary' : 'text.disabled'}>
-            {t('3. Browse or create an order')}
+      {step === '3' && (
+        <StyledPaper>
+          <Typography variant='h5' color='text.primary'>
+            {steps[2]}
           </Typography>
-        </AccordionSummary>
-        <AccordionDetails>
           <Grid container direction='column' alignItems='center' spacing={1} padding={1.5}>
             <Grid item>
               <Typography>
@@ -252,8 +281,8 @@ const Onboarding = ({
                     setPage('offers');
                   }}
                 >
-                  <Storefront /> <div style={{ width: '0.5em' }} />
-                  {t('Offers')}
+                    <Storefront /> <div style={{ width: '0.5em' }} />
+                    {t('Offers')}
                 </Button>
                 <Button
                   color='secondary'
@@ -262,8 +291,8 @@ const Onboarding = ({
                     setPage('create');
                   }}
                 >
-                  <AddBox /> <div style={{ width: '0.5em' }} />
-                  {t('Create')}
+                    <AddBox /> <div style={{ width: '0.5em' }} />
+                    {t('Create')}
                 </Button>
               </ButtonGroup>
             </Grid>
@@ -278,7 +307,7 @@ const Onboarding = ({
               </Typography>
             </Grid>
             <Grid item>
-              <Button
+              <StyledButton
                 component={Link}
                 href='https://learn.robosats.com'
                 target='_blank'
@@ -289,7 +318,7 @@ const Onboarding = ({
                 {t('Learn RoboSats')}
                 <div style={{ width: '0.5em' }} />
                 <NewTabIcon sx={{ width: '0.8em' }} />
-              </Button>
+              </StyledButton>
             </Grid>
             <Grid item sx={{ position: 'relative', top: '0.6em' }}>
               <Button
@@ -302,8 +331,8 @@ const Onboarding = ({
               </Button>
             </Grid>
           </Grid>
-        </AccordionDetails>
-      </Accordion>
+        </StyledPaper>
+      )}
     </Box>
   );
 };
