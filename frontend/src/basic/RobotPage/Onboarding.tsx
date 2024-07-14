@@ -18,8 +18,11 @@ import {
   styled,
   stepConnectorClasses,
   StepIconProps,
+  Paper,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
-import { Check, Casino, Bolt, Storefront, AddBox, School } from '@mui/icons-material';
+import { Check, Casino, SmartToy, Storefront, AddBox, School } from '@mui/icons-material';
 import RobotAvatar from '../../components/RobotAvatar';
 import TokenInput from './TokenInput';
 import { genBase62Token } from '../../utils';
@@ -37,95 +40,91 @@ interface OnboardingProps {
   baseUrl: string;
 }
 
-const StyledPaper = styled(Box)(({ theme }) => ({
+const StyledPaper = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
-  boxShadow: `8px 8px 0px 0px ${theme.palette.mode === 'dark' ? 'white' : 'black'}`,
-  borderRadius: '1vw',
-  border: `2px solid ${theme.palette.text.primary}`,
-  padding: '1vh',
+  boxShadow: '8px 8px 0px 0px rgba(0, 0, 0, 0.2)',
+  borderRadius: '16px',
+  border: '2px solid #000',
+  padding: theme.spacing(3),
   color: theme.palette.text.primary,
-  marginBottom: '1em',
-  marginTop: '2em', // Added margin-top here for more space
+  marginBottom: theme.spacing(3),
+  marginTop: theme.spacing(4),
+  maxWidth: '600px',
+  width: '100%',
+  margin: '24px auto 0', // Added top margin here
 }));
 
 const StyledButton = styled(Button)(({ theme }) => ({
   justifyContent: 'center',
   textAlign: 'center',
-  padding: theme.spacing(2),
-  height: '100%',
+  padding: theme.spacing(1.5, 3),
   borderRadius: '8px',
-  border: `2px solid ${theme.palette.text.primary}`,
-  boxShadow: `4px 4px 0px 0px ${theme.palette.mode === 'dark' ? 'white' : 'black'}`,
+  border: '2px solid #000',
+  boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 0.2)',
+  textTransform: 'none',
+  fontWeight: 'bold',
   '&:hover': {
-    boxShadow: `8px 8px 0px 0px ${theme.palette.mode === 'dark' ? 'white' : 'black'}`,
+    boxShadow: '6px 6px 0px 0px rgba(0, 0, 0, 0.3)',
   },
-  margin: '0.5em 0',
 }));
 
-const SquareConnector = styled(StepConnector)(({ theme }) => ({
+const StyledStepConnector = styled(StepConnector)(({ theme }) => ({
   [`&.${stepConnectorClasses.alternativeLabel}`]: {
-    top: 20,
+    top: 22,
     left: 'calc(-50% + 20px)',
     right: 'calc(50% + 20px)',
   },
   [`&.${stepConnectorClasses.active}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      borderColor: '#2196f3',
+      borderColor: theme.palette.primary.main,
     },
   },
   [`&.${stepConnectorClasses.completed}`]: {
     [`& .${stepConnectorClasses.line}`]: {
-      borderColor: '#2196f3',
+      borderColor: theme.palette.primary.main,
     },
   },
   [`& .${stepConnectorClasses.line}`]: {
-    borderColor: theme.palette.mode === 'dark' ? '#eaeaf0' : '#eaeaf0',
+    borderColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : '#eaeaf0',
     borderTopWidth: 3,
     borderRadius: 1,
   },
 }));
 
-const SquareStepIconRoot = styled('div')<{ ownerState: { active?: boolean; completed?: boolean } }>(
+const StyledStepIconRoot = styled('div')<{ ownerState: { active?: boolean; completed?: boolean } }>(
   ({ theme, ownerState }) => ({
-    color: theme.palette.mode === 'dark' ? '#eaeaf0' : '#eaeaf0',
+    backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[700] : '#ccc',
+    zIndex: 1,
+    color: '#fff',
+    width: 44,
+    height: 44,
     display: 'flex',
-    height: 30,
-    alignItems: 'center',
+    borderRadius: '50%',
     justifyContent: 'center',
+    alignItems: 'center',
     ...(ownerState.active && {
-      color: '#2196f3',
+      backgroundColor: theme.palette.primary.main,
+      boxShadow: '0 4px 10px 0 rgba(0,0,0,.25)',
     }),
     ...(ownerState.completed && {
-      color: '#2196f3',
+      backgroundColor: theme.palette.primary.main,
     }),
   }),
 );
 
-const SquareStepIconBox = styled('div')<{ ownerState: { active?: boolean; completed?: boolean } }>(
-  ({ ownerState }) => ({
-    width: 40,
-    height: 40,
-    borderRadius: 4,
-    border: '2px solid currentColor',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: ownerState.completed || ownerState.active ? 'rgba(33, 150, 243, 0.3)' : 'transparent',
-    color: ownerState.completed || ownerState.active ? '#000' : 'currentColor',
-    fontSize: '1.2rem',
-    fontWeight: 'bold',
-  }),
-);
+function StyledStepIcon(props: StepIconProps) {
+  const { active, completed, className } = props;
 
-function SquareStepIcon(props: StepIconProps) {
-  const { active, completed, className, icon } = props;
+  const icons: { [index: string]: React.ReactElement } = {
+    1: <Casino />,
+    2: <SmartToy />,
+    3: <Storefront />,
+  };
 
   return (
-    <SquareStepIconRoot ownerState={{ active, completed }} className={className}>
-      <SquareStepIconBox ownerState={{ active, completed }}>
-        {completed ? <Check /> : icon}
-      </SquareStepIconBox>
-    </SquareStepIconRoot>
+    <StyledStepIconRoot ownerState={{ active, completed }} className={className}>
+      {icons[String(props.icon)]}
+    </StyledStepIconRoot>
   );
 }
 
@@ -138,6 +137,8 @@ const Onboarding = ({
 }: OnboardingProps): JSX.Element => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const { setPage } = useContext<UseAppStoreType>(AppContext);
   const { garage } = useContext<UseGarageStoreType>(GarageContext);
@@ -160,68 +161,82 @@ const Onboarding = ({
   const steps = [t('1. Generate a token'), t('2. Meet your robot identity'), t('3. Browse or create an order')];
 
   return (
-    <Box sx={{ mt: 3, mb: 3, height: 'fit-content', overflow: 'visible' }}>
-      <Stepper alternativeLabel activeStep={parseInt(step) - 1} connector={<SquareConnector />}>
-        {steps.map((label, index) => (
-          <Step key={index}>
-            <StepLabel StepIconComponent={SquareStepIcon}>{label}</StepLabel>
+    <Box sx={{ 
+      mt: 3, 
+      mb: 3, 
+      height: 'fit-content', 
+      overflow: 'visible', 
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'center',
+      px: 2, // Add horizontal padding
+    }}>
+      <Stepper 
+        alternativeLabel={!isMobile} 
+        orientation={isMobile ? 'vertical' : 'horizontal'}
+        activeStep={parseInt(step) - 1} 
+        connector={<StyledStepConnector />} 
+        sx={{ width: '100%', maxWidth: '600px', mb: 3 }}
+      >
+        {steps.map((label) => (
+          <Step key={label}>
+            <StepLabel StepIconComponent={StyledStepIcon}>{label}</StepLabel>
           </Step>
         ))}
       </Stepper>
 
-      {step === '1' && (
-        <StyledPaper>
-          <Typography variant='h5' color='text.primary'>
-            {steps[0]}
-          </Typography>
-          <Grid container direction='column' alignItems='center' spacing={1} padding={1}>
-            <Grid item>
-              <Typography>
-                {t(
-                  'This temporary key gives you access to a unique and private robot identity for your trade.',
-                )}
-              </Typography>
-            </Grid>
+      <StyledPaper elevation={3} sx={{ width: '100%', maxWidth: '600px' }}>
+        {step === '1' && (
+          <>
+            <Typography variant='h5' gutterBottom align="center">
+              {t('1. Generate a token')}
+            </Typography>
+            <Typography variant="body1" align="center" sx={{ mb: 2 }}>
+              {t('This temporary key gives you access to a unique and private robot identity for your trade.')}
+            </Typography>
             {!generatedToken ? (
-              <Grid item>
-                <StyledButton autoFocus onClick={generateToken} variant='contained' size='large'>
-                  <Casino />
-                  {t('Generate token')}
+              <Box display="flex" justifyContent="center">
+                <StyledButton
+                  onClick={generateToken}
+                  variant='contained'
+                  size='large'
+                  startIcon={<Casino />}
+                  fullWidth={isMobile}
+                >
+                  {t('GENERATE TOKEN')}
                 </StyledButton>
-              </Grid>
+              </Box>
             ) : (
-              <Grid item>
-                <Collapse in={generatedToken}>
-                  <Grid container direction='column' alignItems='center' spacing={1}>
-                    <Grid item>
-                      <Alert variant='outlined' severity='info'>
-                        <b>{`${t('Store it somewhere safe!')} `}</b>
-                        {t(
-                          `This token is the one and only key to your robot and trade. You will need it later to recover your order or check its status.`,
-                        )}
-                      </Alert>
-                    </Grid>
-                    <Grid item sx={{ width: '100%' }}>
-                      <TokenInput
-                        loading={loading}
-                        autoFocusTarget='copyButton'
-                        inputToken={inputToken}
-                        setInputToken={setInputToken}
-                        badToken={badToken}
-                        onPressEnter={() => null}
-                      />
-                    </Grid>
-                    <Grid item>
-                      <Typography>
-                        {t('You can also add your own random characters into the token or')}
-                        <Button size='small' onClick={generateToken}>
-                          <Casino />
-                          {t('roll again')}
-                        </Button>
+              <Collapse in={generatedToken}>
+                <Grid container direction='column' alignItems='center' spacing={2}>
+                  <Grid item xs={12}>
+                    <Alert variant='outlined' severity='info' sx={{ mb: 2 }}>
+                      <Typography variant="subtitle1"><strong>{t('Store it somewhere safe!')}</strong></Typography>
+                      <Typography variant="body2">
+                        {t('This token is the one and only key to your robot and trade. You will need it later to recover your order or check its status.')}
                       </Typography>
-                    </Grid>
-
-                    <Grid item>
+                    </Alert>
+                  </Grid>
+                  <Grid item xs={12} sx={{ width: '100%' }}>
+                    <TokenInput
+                      loading={loading}
+                      autoFocusTarget='copyButton'
+                      inputToken={inputToken}
+                      setInputToken={setInputToken}
+                      badToken={badToken}
+                      onPressEnter={() => null}
+                    />
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="body2" align="center">
+                      {t('You can also add your own random characters into the token or')}
+                      <Button size='small' onClick={generateToken} startIcon={<Casino />} sx={{ ml: 1 }}>
+                        {t('roll again')}
+                      </Button>
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Box display="flex" justifyContent="center">
                       <StyledButton
                         onClick={() => {
                           setStep('2');
@@ -229,177 +244,137 @@ const Onboarding = ({
                         }}
                         variant='contained'
                         size='large'
+                        startIcon={<Check />}
+                        fullWidth={isMobile}
                       >
-                        <Check />
                         {t('Continue')}
                       </StyledButton>
-                    </Grid>
+                    </Box>
                   </Grid>
-                </Collapse>
-              </Grid>
+                </Grid>
+              </Collapse>
             )}
-          </Grid>
-        </StyledPaper>
-      )}
+          </>
+        )}
 
-      {step === '2' && (
-        <StyledPaper>
-          <Typography variant='h5' color='text.primary'>
-            {steps[1]}
-          </Typography>
-          <Grid container direction='column' alignItems='center' spacing={1}>
-            <Grid item>
-              <Typography>
-                {slot?.hashId ? (
-                  t('This is your trading avatar')
-                ) : (
-                  <>
-                    <b>{t('Building your robot!')}</b>
-                    <LinearProgress />
-                  </>
-                )}
-              </Typography>
-            </Grid>
-
-            <Grid item sx={{ width: '13.5em' }}>
+        {step === '2' && (
+          <>
+            <Typography variant='h5' gutterBottom align="center">
+              {t('2. Meet your robot identity')}
+            </Typography>
+            <Typography variant="h6" align="center" sx={{ mb: 2 }}>
+              {slot?.hashId ? t('This is your trading avatar') : t('Building your robot!')}
+            </Typography>
+            {!slot?.hashId && <LinearProgress sx={{ mb: 2 }} />}
+            <Box display="flex" justifyContent="center" sx={{ mb: 2 }}>
               <RobotAvatar
                 hashId={slot?.hashId ?? ''}
                 smooth={true}
-                style={{ maxWidth: '12.5em', maxHeight: '12.5em' }}
+                style={{ width: '200px', height: '200px' }}
                 placeholderType='generating'
                 imageStyle={{
-                  transform: '',
                   border: '2px solid #555',
-                  filter: 'drop-shadow(1px 1px 1px #000000)',
-                  height: '12.4em',
-                  width: '12.4em',
+                  borderRadius: '50%',
+                  boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
                 }}
                 tooltipPosition='top'
               />
-            </Grid>
-
-            {slot?.nickname ? (
-              <Grid item>
-                <Typography align='center'>{t('Hi! My name is')}</Typography>
-                <Typography component='h5' variant='h5'>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexWrap: 'wrap',
-                    }}
-                  >
-                    <Bolt
-                      sx={{
-                        color: '#fcba03',
-                        height: '1.5em',
-                        width: '1.5em',
-                      }}
-                    />
-                    <b>{slot?.nickname}</b>
-                    <Bolt
-                      sx={{
-                        color: '#fcba03',
-                        height: '1.5em',
-                        width: '1.5em',
-                      }}
-                    />
-                  </div>
+            </Box>
+            {slot?.nickname && (
+              <>
+                <Typography variant="body1" align="center">{t('Hi! My name is')}</Typography>
+                <Typography variant="h4" align="center" sx={{ mt: 1, mb: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <SmartToy sx={{ color: '#fcba03', fontSize: '1.5em', mr: 1 }} />
+                    <strong>{slot.nickname}</strong>
+                    <SmartToy sx={{ color: '#fcba03', fontSize: '1.5em', ml: 1 }} />
+                  </Box>
                 </Typography>
-              </Grid>
-            ) : null}
-            <Grid item>
-              <Collapse in={!!slot?.hashId}>
+              </>
+            )}
+            <Box display="flex" justifyContent="center">
+              <StyledButton
+                onClick={() => setStep('3')}
+                variant='contained'
+                size='large'
+                startIcon={<Check />}
+                disabled={!slot?.hashId}
+                fullWidth={isMobile}
+              >
+                {t('Continue')}
+              </StyledButton>
+            </Box>
+          </>
+        )}
+
+        {step === '3' && (
+          <>
+            <Typography variant='h5' gutterBottom align="center">
+              {t('3. Browse or create an order')}
+            </Typography>
+            <Typography variant="body1" align="center" sx={{ mb: 2 }}>
+              {t('RoboSats is a peer-to-peer marketplace. You can browse the public offers or create a new one.')}
+            </Typography>
+            <Box display="flex" justifyContent="center" sx={{ mb: 2 }}>
+              <ButtonGroup 
+                variant='contained' 
+                size="large" 
+                orientation={isMobile ? 'vertical' : 'horizontal'}
+                fullWidth={isMobile}
+              >
                 <StyledButton
-                  onClick={() => {
-                    setStep('3');
-                  }}
-                  variant='contained'
-                  size='large'
-                >
-                  <Check />
-                  {t('Continue')}
-                </StyledButton>
-              </Collapse>
-            </Grid>
-          </Grid>
-        </StyledPaper>
-      )}
-
-      {step === '3' && (
-        <StyledPaper>
-          <Typography variant='h5' color='text.primary'>
-            {steps[2]}
-          </Typography>
-          <Grid container direction='column' alignItems='center' spacing={1} padding={1.5}>
-            <Grid item>
-              <Typography>
-                {t(
-                  'RoboSats is a peer-to-peer marketplace. You can browse the public offers or create a new one.',
-                )}
-              </Typography>
-            </Grid>
-
-            <Grid item>
-              <ButtonGroup variant='contained'>
-                <Button
-                  color='primary'
                   onClick={() => {
                     navigate('/offers');
                     setPage('offers');
                   }}
+                  startIcon={<Storefront />}
                 >
-                    <Storefront /> <div style={{ width: '0.5em' }} />
-                    {t('Offers')}
-                </Button>
-                <Button
-                  color='secondary'
+                  {t('OFFERS')}
+                </StyledButton>
+                <StyledButton
                   onClick={() => {
                     navigate('/create');
                     setPage('create');
                   }}
+                  startIcon={<AddBox />}
+                  color="secondary"
                 >
-                    <AddBox /> <div style={{ width: '0.5em' }} />
-                    {t('Create')}
-                </Button>
+                  {t('CREATE')}
+                </StyledButton>
               </ButtonGroup>
-            </Grid>
-
-            <Grid item>
-              <Typography>
-                {`${t('If you need help on your RoboSats journey join our public support')} `}
-                <Link target='_blank' href='https://t.me/robosats_es' rel='noreferrer'>
-                  {t('Telegram group')}
-                </Link>
-                {`, ${t('or visit the robot school for documentation.')} `}
-              </Typography>
-            </Grid>
-            <Grid item>
+            </Box>
+            <Typography variant="body2" align="center" sx={{ mb: 2 }}>
+              {t('If you need help on your RoboSats journey join our public support')}
+              {' '}
+              <Link href='https://t.me/robosats_es' target='_blank' rel='noreferrer'>
+                {t('Telegram group')}
+              </Link>
+              , {t('or visit the robot school for documentation.')}
+            </Typography>
+            <Box display="flex" justifyContent="center" sx={{ mb: 2 }}>
               <StyledButton
                 component={Link}
                 href='https://learn.robosats.com'
                 target='_blank'
                 color='inherit'
                 variant='contained'
+                startIcon={<School />}
+                fullWidth={isMobile}
               >
-                <School /> <div style={{ width: '0.5em' }} />
-                {t('Learn RoboSats')}
+                {t('LEARN ROBOSATS')}
               </StyledButton>
-            </Grid>
-            <Grid item sx={{ position: 'relative', top: '0.6em' }}>
+            </Box>
+            <Box display="flex" justifyContent="center">
               <Button
                 color='inherit'
-                onClick={() => {
-                  setView('profile');
-                }}
+                onClick={() => setView('profile')}
               >
-                {t('See profile')}
+                {t('SEE PROFILE')}
               </Button>
-            </Grid>
-          </Grid>
-        </StyledPaper>
-      )}
+            </Box>
+          </>
+        )}
+      </StyledPaper>
     </Box>
   );
 };
