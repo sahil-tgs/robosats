@@ -10,12 +10,12 @@ import { GarageContext, type UseGarageStoreType } from '../contexts/GarageContex
 const Router = window.NativeRobosats === undefined ? BrowserRouter : MemoryRouter;
 
 const MainContent = styled(Box)(({ theme }) => ({
-  marginTop: '80px', // Adjust this value based on your top navbar height + margin
-  marginBottom: '80px', // Adjust this value based on your bottom navbar height + margin
-  padding: theme.spacing(2), // Add padding for better content spacing
-  overflowY: 'auto', // Ensure vertical scrolling for the main content area
-  overflowX: 'hidden', // Prevent horizontal scrolling
-  height: 'calc(100vh - 160px)', // Subtract the total height of both navbars + margins
+  marginTop: '100px', 
+  marginBottom: '80px', 
+  padding: theme.spacing(2), 
+  overflowY: 'auto', 
+  overflowX: 'hidden', 
+  height: 'calc(100vh - 180px)',
 }));
 
 const Main: React.FC = () => {

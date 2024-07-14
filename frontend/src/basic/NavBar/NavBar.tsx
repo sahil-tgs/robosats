@@ -6,8 +6,8 @@ import {
   BottomNavigationAction,
   Paper,
   styled,
-  useMediaQuery,
   useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import SmartToyOutlinedIcon from '@mui/icons-material/SmartToyOutlined';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
@@ -21,29 +21,34 @@ import { FederationContext, type UseFederationStoreType } from '../../contexts/F
 import { type Page, isPage } from '.';
 
 const StyledBottomNavigation = styled(BottomNavigation)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: '8px 8px 0px 0px rgba(0,0,0,1)', // Hard black shadow
-  borderRadius: theme.spacing(1),
-  border: `2px solid black`, // Hard black outline
-  margin: theme.spacing(2), // Add margin to prevent sticking to edges
-  [theme.breakpoints.up('md')]: {
-    '& .MuiBottomNavigationAction-root': {
-      minWidth: '80px',
-    },
+  width: '100%',
+  maxWidth: '100%',
+  padding: theme.spacing(0.5, 0),
+  borderRadius: 'inherit',
+}));
+
+const StyledBottomNavigationAction = styled(BottomNavigationAction)(({ theme }) => ({
+  minWidth: 'auto',
+  padding: theme.spacing(0.5, 0),
+  '& .MuiBottomNavigationAction-label': {
+    fontSize: '0.75rem',
+  },
+  '& .MuiSvgIcon-root': {
+    fontSize: '1.5rem',
   },
 }));
 
 const NavBar = (): JSX.Element => {
-  const theme = useTheme();
   const { t } = useTranslation();
-  const { page, setPage, setSlideDirection, open, setOpen, windowSize } =
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const { page, setPage, setSlideDirection, open, setOpen } =
     useContext<UseAppStoreType>(AppContext);
-  const { garage, robotUpdatedAt } = useContext<UseGarageStoreType>(GarageContext);
-  const { setCurrentOrderId } = useContext<FederationStoreType>(FederationContext);
+  const { garage } = useContext<UseGarageStoreType>(GarageContext);
+  const { setCurrentOrderId } = useContext<UseFederationStoreType>(FederationContext);
 
   const navigate = useNavigate();
   const location = useLocation();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
   const [value, setValue] = React.useState(page);
 
   const pagesPosition = {
@@ -55,11 +60,6 @@ const NavBar = (): JSX.Element => {
   };
 
   useEffect(() => {
-    // re-render on order and robot updated at for latest orderId in tab
-  }, [robotUpdatedAt]);
-
-  useEffect(() => {
-    // change tab (page) into the current route
     const pathPage: Page | string = location.pathname.split('/')[1];
     if (pathPage === 'index.html') {
       navigate('/robot');
@@ -69,9 +69,9 @@ const NavBar = (): JSX.Element => {
       setPage(pathPage);
     }
     setValue(pathPage as Page);
-  }, [location]);
+  }, [location, navigate, setPage]);
 
-  const handleSlideDirection = function (oldPage: Page, newPage: Page): void {
+  const handleSlideDirection = (oldPage: Page, newPage: Page): void => {
     const oldPos: number = pagesPosition[oldPage];
     const newPos: number = pagesPosition[newPage];
     setSlideDirection(
@@ -79,7 +79,7 @@ const NavBar = (): JSX.Element => {
     );
   };
 
-  const changePage = function (event: React.SyntheticEvent, newPage: Page): void {
+  const changePage = (event: React.SyntheticEvent, newPage: Page): void => {
     if (newPage !== 'none') {
       const slot = garage.getSlot();
       handleSlideDirection(page, newPage);
@@ -106,41 +106,59 @@ const NavBar = (): JSX.Element => {
     <Paper
       sx={{
         position: 'fixed',
-        bottom: theme.spacing(2),
-        left: '50%',
-        transform: 'translateX(-50%)',
+        bottom: 0,
+        left: 0,
+        right: 0,
         zIndex: 1000,
-        width: 'calc(100% - 64px)', // Adjust width to account for margin
-        maxWidth: 600,
-        borderRadius: theme.spacing(1),
-        boxShadow: 'none', // Remove the boxShadow from Paper component
-        backgroundColor: 'transparent', // Ensure transparency
+        ...(isMobile
+          ? {
+              boxShadow: 'none',
+              backgroundColor: theme.palette.background.paper,
+              borderTop: `2px solid black`,
+              borderRadius: '0',
+            }
+          : {
+              bottom: theme.spacing(2),
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: '95%',
+              maxWidth: 600,
+              borderRadius: '8px',
+              boxShadow: '8px 8px 0px 0px rgba(0,0,0,1)',
+              border: `2px solid black`,
+              backgroundColor: theme.palette.background.paper,
+              overflow: 'hidden',
+            }),
       }}
-      elevation={0} // Remove elevation to remove shadow
+      elevation={isMobile ? 0 : 3}
     >
-      <StyledBottomNavigation value={value} onChange={changePage} showLabels>
-        <BottomNavigationAction
+      <StyledBottomNavigation 
+        value={value} 
+        onChange={changePage} 
+        showLabels
+      >
+        <StyledBottomNavigationAction
           label={t('Robot')}
           value="robot"
           icon={<SmartToyOutlinedIcon />}
         />
-        <BottomNavigationAction
+        <StyledBottomNavigationAction
           label={t('Offers')}
           value="offers"
           icon={<StorefrontOutlinedIcon />}
         />
-        <BottomNavigationAction
+        <StyledBottomNavigationAction
           label={t('Create')}
           value="create"
           icon={<AddBoxOutlinedIcon />}
         />
-        <BottomNavigationAction
+        <StyledBottomNavigationAction
           label={t('Orders')}
           value="order"
           icon={<AssignmentOutlinedIcon />}
           disabled={!garage.getSlot()?.getRobot()?.activeOrderId}
         />
-        <BottomNavigationAction
+        <StyledBottomNavigationAction
           label={t('Settings')}
           value="settings"
           icon={<SettingsOutlinedIcon />}
