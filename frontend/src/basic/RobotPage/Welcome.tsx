@@ -60,6 +60,7 @@ const Welcome = ({ setView, getGenerateRobot, width }: WelcomeProps): JSX.Elemen
           flexBasis: 0,
           bgcolor: COLORS.background,
           border: `2px solid ${COLORS.textPrimary}`,
+          borderRight: 'none',
           borderRadius: { xs: '8px 8px 0 0', md: '8px 0 0 8px' },
           boxShadow: `8px 8px 0px 0px ${COLORS.shadow}`,
           display: 'flex',
