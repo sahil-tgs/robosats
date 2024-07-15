@@ -1,5 +1,19 @@
 import React, { useContext, useState } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Box, useMediaQuery, styled, useTheme, Drawer, List, ListItem, ListItemText, Divider } from '@mui/material';
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Box,
+  useMediaQuery,
+  styled,
+  useTheme,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Divider
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
@@ -9,36 +23,28 @@ import RobotAvatar from '../../components/RobotAvatar';
 import { RoboSatsTextIcon } from '../../components/Icons';
 import { useTranslation } from 'react-i18next';
 
+const NAVBAR_HEIGHT = '64px';
+
 const StyledAppBar = styled(AppBar)(({ theme, isMobile, drawerOpen }) => ({
-  ...(isMobile
-    ? {
-        boxShadow: 'none',
-        backgroundColor: theme.palette.background.paper,
-        borderBottom: `2px solid ${theme.palette.mode === 'dark' ? '#fff' : '#000'}`,
-        borderRadius: '0',
-        top: 0,
-        left: 0,
-        right: 0,
-        width: '100%',
-        ...(drawerOpen && {
-          background: 'none',
-          backgroundColor: theme.palette.background.paper,
-        }),
-      }
-    : {
-        backgroundColor: theme.palette.mode === 'dark' ? '#333' : 'white',
-        boxShadow: '8px 8px 0px 0px rgba(0,0,0,1)',
-        borderRadius: '1vw',
-        border: `2px solid ${theme.palette.mode === 'dark' ? '#fff' : '#000'}`,
-        padding: '1vh',
-        color: theme.palette.mode === 'dark' ? '#fff' : '#000',
-        top: theme.spacing(2), 
-        left: theme.spacing(2), 
-        right: theme.spacing(2), 
-        width: 'calc(100% - 64px)', 
-        position: 'fixed',
-        zIndex: 1100,
-      }),
+  height: NAVBAR_HEIGHT,
+  display: 'flex',
+  justifyContent: 'center',
+  boxShadow: isMobile ? 'none' : '8px 8px 0px 0px rgba(0,0,0,1)',
+  backgroundColor: theme.palette.background.paper,
+  borderBottom: isMobile ? `2px solid ${theme.palette.mode === 'dark' ? '#fff' : '#000'}` : '',
+  border: !isMobile ? `2px solid ${theme.palette.mode === 'dark' ? '#fff' : '#000'}` : '',
+  borderRadius: isMobile ? '0' : '1vw',
+  padding: isMobile ? '0' : '1vh',
+  top: isMobile ? 0 : theme.spacing(2),
+  left: '50%',
+  transform: 'translateX(-50%)',
+  width: isMobile ? '100%' : 'calc(100% - 64px)',
+  position: 'fixed',
+  zIndex: 1100,
+  ...(drawerOpen && isMobile && {
+    background: 'none',
+    backgroundColor: theme.palette.background.paper,
+  }),
 }));
 
 const StyledToolbar = styled(Toolbar)(({ theme }) => ({
@@ -47,16 +53,14 @@ const StyledToolbar = styled(Toolbar)(({ theme }) => ({
   alignItems: 'center',
   width: '100%',
   padding: '0 5vw',
-  [theme.breakpoints.down('sm')]: {
-    justifyContent: 'space-between',
-  },
+  minHeight: NAVBAR_HEIGHT,
 }));
 
 const CenterBox = styled(Box)({
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  gap: '5vw',
+  gap: '2vw',
   flexGrow: 1,
 });
 
@@ -127,7 +131,7 @@ const TopNavBar = (): JSX.Element => {
                   onClick={() => {
                     setOpen({ ...closeAll, profile: !open.profile });
                   }}
-                  style={{ visibility: slot?.hashId ? 'visible' : 'hidden' }} 
+                  style={{ visibility: slot?.hashId ? 'visible' : 'hidden' }}
                 >
                   {slot?.hashId ? (
                     <RobotAvatar
@@ -147,8 +151,7 @@ const TopNavBar = (): JSX.Element => {
                 BackdropProps={{ invisible: true }}
                 PaperProps={{
                   style: {
-                    marginTop: '56px', 
-                    borderTop: '2px solid black',
+                    marginTop: NAVBAR_HEIGHT,
                     borderLeft: '2px solid black',
                     borderRight: '2px solid black',
                     borderBottom: '2px solid black',
@@ -210,7 +213,7 @@ const TopNavBar = (): JSX.Element => {
                 onClick={() => {
                   setOpen({ ...closeAll, profile: !open.profile });
                 }}
-                style={{ visibility: slot?.hashId ? 'visible' : 'hidden' }} 
+                style={{ visibility: slot?.hashId ? 'visible' : 'hidden' }}
               >
                 {slot?.hashId ? (
                   <RobotAvatar

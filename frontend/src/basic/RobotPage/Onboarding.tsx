@@ -17,52 +17,40 @@ import {
   StepConnector,
   styled,
   stepConnectorClasses,
-  StepIconProps,
   Paper,
   useTheme,
   useMediaQuery,
+  IconButton,
 } from '@mui/material';
-import { Check, Casino, SmartToy, Storefront, AddBox, School } from '@mui/icons-material';
+import { Check, Casino, SmartToy, Storefront, AddBox, School, ContentCopy } from '@mui/icons-material';
 import RobotAvatar from '../../components/RobotAvatar';
 import TokenInput from './TokenInput';
 import { genBase62Token } from '../../utils';
 import { AppContext, type UseAppStoreType } from '../../contexts/AppContext';
 import { GarageContext, type UseGarageStoreType } from '../../contexts/GarageContext';
 
-interface OnboardingProps {
-  setView: (state: 'welcome' | 'onboarding' | 'recovery' | 'profile') => void;
-  robot: Robot;
-  setRobot: (state: Robot) => void;
-  inputToken: string;
-  setInputToken: (state: string) => void;
-  getGenerateRobot: (token: string) => void;
-  badToken: string;
-  baseUrl: string;
-}
-
 const StyledPaper = styled(Paper)(({ theme }) => ({
   backgroundColor: theme.palette.background.paper,
   boxShadow: '8px 8px 0px 0px rgba(0, 0, 0, 0.2)',
   borderRadius: '16px',
   border: '2px solid #000',
-  padding: theme.spacing(3),
+  padding: theme.spacing(2),
   color: theme.palette.text.primary,
-  marginBottom: theme.spacing(3),
-  marginTop: theme.spacing(4),
-  maxWidth: '600px',
   width: '100%',
-  margin: '24px auto 0', // Added top margin here
+  maxWidth: '500px',
+  margin: '0 auto',
 }));
 
 const StyledButton = styled(Button)(({ theme }) => ({
   justifyContent: 'center',
   textAlign: 'center',
-  padding: theme.spacing(1.5, 3),
+  padding: theme.spacing(1),
   borderRadius: '8px',
   border: '2px solid #000',
   boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 0.2)',
   textTransform: 'none',
   fontWeight: 'bold',
+  width: '100%',
   '&:hover': {
     boxShadow: '6px 6px 0px 0px rgba(0, 0, 0, 0.3)',
   },
@@ -91,26 +79,24 @@ const StyledStepConnector = styled(StepConnector)(({ theme }) => ({
   },
 }));
 
-const StyledStepIconRoot = styled('div')<{ ownerState: { active?: boolean; completed?: boolean } }>(
-  ({ theme, ownerState }) => ({
-    backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[700] : '#ccc',
-    zIndex: 1,
-    color: '#fff',
-    width: 44,
-    height: 44,
-    display: 'flex',
-    borderRadius: '50%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...(ownerState.active && {
-      backgroundColor: theme.palette.primary.main,
-      boxShadow: '0 4px 10px 0 rgba(0,0,0,.25)',
-    }),
-    ...(ownerState.completed && {
-      backgroundColor: theme.palette.primary.main,
-    }),
+const StyledStepIconRoot = styled('div')<{ ownerState: { active?: boolean; completed?: boolean } }>(({ theme, ownerState }) => ({
+  backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[700] : '#ccc',
+  zIndex: 1,
+  color: '#fff',
+  width: 44,
+  height: 44,
+  display: 'flex',
+  borderRadius: '50%',
+  justifyContent: 'center',
+  alignItems: 'center',
+  ...(ownerState.active && {
+    backgroundColor: theme.palette.primary.main,
+    boxShadow: '0 4px 10px 0 rgba(0,0,0,.25)',
   }),
-);
+  ...(ownerState.completed && {
+    backgroundColor: theme.palette.primary.main,
+  }),
+}));
 
 function StyledStepIcon(props: StepIconProps) {
   const { active, completed, className } = props;
@@ -161,49 +147,30 @@ const Onboarding = ({
   const steps = [t('1. Generate a token'), t('2. Meet your robot identity'), t('3. Browse or create an order')];
 
   return (
-    <Box sx={{ 
-      mt: 3, 
-      mb: 3, 
-      height: 'fit-content', 
-      overflow: 'visible', 
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'center',
-      px: 2, // Add horizontal padding
-    }}>
-      <Stepper 
-        alternativeLabel={!isMobile} 
-        orientation={isMobile ? 'vertical' : 'horizontal'}
-        activeStep={parseInt(step) - 1} 
-        connector={<StyledStepConnector />} 
-        sx={{ width: '100%', maxWidth: '600px', mb: 3 }}
-      >
+    <Box sx={{ mt: 3, mb: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', px: 2, width: '100%' }}>
+      <Stepper alternativeLabel={!isMobile} orientation={isMobile ? 'horizontal' : 'horizontal'} activeStep={parseInt(step) - 1} connector={<StyledStepConnector />} sx={{ width: '100%', mb: 3 }}>
         {steps.map((label) => (
           <Step key={label}>
-            <StepLabel StepIconComponent={StyledStepIcon}>{label}</StepLabel>
+            <StepLabel StepIconComponent={StyledStepIcon}>
+              {isMobile ? null : label}
+            </StepLabel>
           </Step>
         ))}
       </Stepper>
 
-      <StyledPaper elevation={3} sx={{ width: '100%', maxWidth: '600px' }}>
+      <StyledPaper elevation={3}>
         {step === '1' && (
           <>
-            <Typography variant='h5' gutterBottom align="center">
+            <Typography variant='h6' gutterBottom align="center">
               {t('1. Generate a token')}
             </Typography>
-            <Typography variant="body1" align="center" sx={{ mb: 2 }}>
+            <Typography variant="body2" align="center" sx={{ mb: 2 }}>
               {t('This temporary key gives you access to a unique and private robot identity for your trade.')}
             </Typography>
             {!generatedToken ? (
               <Box display="flex" justifyContent="center">
-                <StyledButton
-                  onClick={generateToken}
-                  variant='contained'
-                  size='large'
-                  startIcon={<Casino />}
-                  fullWidth={isMobile}
-                >
-                  {t('GENERATE TOKEN')}
+                <StyledButton onClick={generateToken} variant='contained' size='large' fullWidth={false}>
+                  {t('Generate Token')}
                 </StyledButton>
               </Box>
             ) : (
@@ -211,42 +178,31 @@ const Onboarding = ({
                 <Grid container direction='column' alignItems='center' spacing={2}>
                   <Grid item xs={12}>
                     <Alert variant='outlined' severity='info' sx={{ mb: 2 }}>
-                      <Typography variant="subtitle1"><strong>{t('Store it somewhere safe!')}</strong></Typography>
+                      <Typography variant="body2"><strong>{t('Store it somewhere safe!')}</strong></Typography>
                       <Typography variant="body2">
                         {t('This token is the one and only key to your robot and trade. You will need it later to recover your order or check its status.')}
                       </Typography>
                     </Alert>
                   </Grid>
                   <Grid item xs={12} sx={{ width: '100%' }}>
-                    <TokenInput
-                      loading={loading}
-                      autoFocusTarget='copyButton'
-                      inputToken={inputToken}
-                      setInputToken={setInputToken}
-                      badToken={badToken}
-                      onPressEnter={() => null}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant="body2" align="center">
-                      {t('You can also add your own random characters into the token or')}
-                      <Button size='small' onClick={generateToken} startIcon={<Casino />} sx={{ ml: 1 }}>
-                        {t('roll again')}
-                      </Button>
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
+                      <TokenInput
+                        loading={loading}
+                        autoFocusTarget='copyButton'
+                        inputToken={inputToken}
+                        setInputToken={setInputToken}
+                        badToken={badToken}
+                        onPressEnter={() => null}
+                        sx={{ flexGrow: 1 }}
+                      />
+                      <IconButton onClick={() => navigator.clipboard.writeText(inputToken)} size="small">
+                        <ContentCopy />
+                      </IconButton>
+                    </Box>
                   </Grid>
                   <Grid item xs={12}>
                     <Box display="flex" justifyContent="center">
-                      <StyledButton
-                        onClick={() => {
-                          setStep('2');
-                          getGenerateRobot(inputToken);
-                        }}
-                        variant='contained'
-                        size='large'
-                        startIcon={<Check />}
-                        fullWidth={isMobile}
-                      >
+                      <StyledButton onClick={() => { setStep('2'); getGenerateRobot(inputToken); }} variant='contained' size='large' startIcon={<Check />} fullWidth={false}>
                         {t('Continue')}
                       </StyledButton>
                     </Box>
@@ -259,10 +215,10 @@ const Onboarding = ({
 
         {step === '2' && (
           <>
-            <Typography variant='h5' gutterBottom align="center">
+            <Typography variant='h6' gutterBottom align="center">
               {t('2. Meet your robot identity')}
             </Typography>
-            <Typography variant="h6" align="center" sx={{ mb: 2 }}>
+            <Typography variant="body2" align="center" sx={{ mb: 2 }}>
               {slot?.hashId ? t('This is your trading avatar') : t('Building your robot!')}
             </Typography>
             {!slot?.hashId && <LinearProgress sx={{ mb: 2 }} />}
@@ -270,7 +226,7 @@ const Onboarding = ({
               <RobotAvatar
                 hashId={slot?.hashId ?? ''}
                 smooth={true}
-                style={{ width: '200px', height: '200px' }}
+                style={{ width: '150px', height: '150px' }}
                 placeholderType='generating'
                 imageStyle={{
                   border: '2px solid #555',
@@ -282,25 +238,18 @@ const Onboarding = ({
             </Box>
             {slot?.nickname && (
               <>
-                <Typography variant="body1" align="center">{t('Hi! My name is')}</Typography>
-                <Typography variant="h4" align="center" sx={{ mt: 1, mb: 2 }}>
+                <Typography variant="body2" align="center">{t('Hi! My name is')}</Typography>
+                <Typography variant="h6" align="center" sx={{ mt: 1, mb: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <SmartToy sx={{ color: '#fcba03', fontSize: '1.5em', mr: 1 }} />
+                    <SmartToy sx={{ color: '#fcba03', fontSize: '1.2em', mr: 1 }} />
                     <strong>{slot.nickname}</strong>
-                    <SmartToy sx={{ color: '#fcba03', fontSize: '1.5em', ml: 1 }} />
+                    <SmartToy sx={{ color: '#fcba03', fontSize: '1.2em', ml: 1 }} />
                   </Box>
                 </Typography>
               </>
             )}
             <Box display="flex" justifyContent="center">
-              <StyledButton
-                onClick={() => setStep('3')}
-                variant='contained'
-                size='large'
-                startIcon={<Check />}
-                disabled={!slot?.hashId}
-                fullWidth={isMobile}
-              >
+              <StyledButton onClick={() => setStep('3')} variant='contained' size='large' startIcon={<Check />} disabled={!slot?.hashId} fullWidth={false}>
                 {t('Continue')}
               </StyledButton>
             </Box>
@@ -309,37 +258,19 @@ const Onboarding = ({
 
         {step === '3' && (
           <>
-            <Typography variant='h5' gutterBottom align="center">
+            <Typography variant='h6' gutterBottom align="center">
               {t('3. Browse or create an order')}
             </Typography>
-            <Typography variant="body1" align="center" sx={{ mb: 2 }}>
+            <Typography variant="body2" align="center" sx={{ mb: 2 }}>
               {t('RoboSats is a peer-to-peer marketplace. You can browse the public offers or create a new one.')}
             </Typography>
             <Box display="flex" justifyContent="center" sx={{ mb: 2 }}>
-              <ButtonGroup 
-                variant='contained' 
-                size="large" 
-                orientation={isMobile ? 'vertical' : 'horizontal'}
-                fullWidth={isMobile}
-              >
-                <StyledButton
-                  onClick={() => {
-                    navigate('/offers');
-                    setPage('offers');
-                  }}
-                  startIcon={<Storefront />}
-                >
-                  {t('OFFERS')}
+              <ButtonGroup variant='contained' size="large" orientation={isMobile ? 'vertical' : 'horizontal'} fullWidth={isMobile}>
+                <StyledButton onClick={() => { navigate('/offers'); setPage('offers'); }} startIcon={<Storefront />}>
+                  {t('Offers')}
                 </StyledButton>
-                <StyledButton
-                  onClick={() => {
-                    navigate('/create');
-                    setPage('create');
-                  }}
-                  startIcon={<AddBox />}
-                  color="secondary"
-                >
-                  {t('CREATE')}
+                <StyledButton onClick={() => { navigate('/create'); setPage('create'); }} startIcon={<AddBox />} color="secondary">
+                  {t('Create')}
                 </StyledButton>
               </ButtonGroup>
             </Box>
@@ -352,24 +283,13 @@ const Onboarding = ({
               , {t('or visit the robot school for documentation.')}
             </Typography>
             <Box display="flex" justifyContent="center" sx={{ mb: 2 }}>
-              <StyledButton
-                component={Link}
-                href='https://learn.robosats.com'
-                target='_blank'
-                color='inherit'
-                variant='contained'
-                startIcon={<School />}
-                fullWidth={isMobile}
-              >
-                {t('LEARN ROBOSATS')}
+              <StyledButton component={Link} href='https://learn.robosats.com' target='_blank' color='inherit' variant='contained' startIcon={<School />} fullWidth={isMobile}>
+                {t('Learn RoboSats')}
               </StyledButton>
             </Box>
             <Box display="flex" justifyContent="center">
-              <Button
-                color='inherit'
-                onClick={() => setView('profile')}
-              >
-                {t('SEE PROFILE')}
+              <Button color='inherit' onClick={() => setView('profile')}>
+                {t('See Profile')}
               </Button>
             </Box>
           </>
